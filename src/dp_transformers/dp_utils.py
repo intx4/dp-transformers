@@ -95,8 +95,9 @@ class DPCallback(TrainerCallback):
 
 
 class DataCollatorForPrivateCausalLanguageModeling(DataCollatorForLanguageModeling):
-    def __init__(self, tokenizer: PreTrainedTokenizer):
+    def __init__(self, tokenizer: PreTrainedTokenizer, model_wants_position_ids=True):
         super().__init__(tokenizer=tokenizer, mlm=False)
+        self.model_wants_position_ids = model_wants_position_ids
 
     def __call__(self, examples: List[Union[List[int], torch.Tensor, Dict[str, torch.Tensor]]]) -> Dict[str, torch.Tensor]:
         batch = super().__call__(examples)
@@ -105,7 +106,7 @@ class DataCollatorForPrivateCausalLanguageModeling(DataCollatorForLanguageModeli
         # since Opacus is not able to deduce the batch size from the input. Here we manually
         # generate a position_ids tensor which has the same values as Huggingface's default tensor
         # but it is constructed in a way that is compatile with Opacus by using expand_as.
-        if "position_ids" not in batch:
+        if "position_ids" not in batch and self.model_wants_position_ids :
             input_ids = batch["input_ids"]
             batch["position_ids"] = torch.arange(
                 input_ids.shape[1], dtype=torch.long, device=input_ids.device
