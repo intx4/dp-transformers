@@ -247,7 +247,10 @@ class OpacusDPTrainer(Trainer):
         if is_sagemaker_mp_enabled():
             raise NotImplementedError("DP currently doesn't support this")
 
-        if self.use_cuda_amp or self.use_cpu_amp:
+        if hasattr(self,"use_cuda_amp"):
+            if self.use_cuda_amp:
+                raise NotImplementedError("DP currently doesn't support this.")
+        if self.use_cpu_amp:
             raise NotImplementedError("DP currently doesn't support this.")
         else:
             with self.compute_loss_context_manager():
