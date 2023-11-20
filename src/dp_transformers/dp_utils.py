@@ -265,8 +265,11 @@ class OpacusDPTrainer(Trainer):
         # that is returned in order for the logging to work correctly. Hence we scale the loss after the call to 
         # loss.backward()
 
-        if self.use_cuda_amp or self.use_cpu_amp:
-            raise NotImplementedError("DP currently doesn't support this")
+        if hasattr(self,"use_cuda_amp"):
+            if self.use_cuda_amp:
+                raise NotImplementedError("DP currently doesn't support this.")
+        if self.use_cpu_amp:
+            raise NotImplementedError("DP currently doesn't support this.")
         elif self.use_apex:
             raise NotImplementedError("DP currently doesn't support this")
         elif self.deepspeed:
